@@ -4,20 +4,21 @@
 
 
 #for abe or if alex feels up to it:
-#make  an intermedairy camera surface (so you draw to that and that surface takes care of drawing the correct part of the world)
-#post to github
-#email alex with github loc
+
 #add bidirection mode
 
 #for alex: 
 #add yourself to author line
 #add some enemy craft
 #add a system so things enterence can b scripted (then we have a simple level system)
+#prevent player from leaving screen
 
 import pygame
 pygame.init()
 screen = pygame.display.set_mode((600,400))
+world = pygame.Surface((3000,400)) #this would be the dimensions of the level
 clock = pygame.time.Clock()
+drawloc = [0,0]
 running=True
 
 def add(x,y):
@@ -51,8 +52,8 @@ def processevent(e):
     if e.type == pygame.QUIT:
         running = False
     if e.type == pygame.KEYDOWN:
-        global temp
-        print temp.rect
+        global screen 
+        print screen
         if e.key == pygame.K_w:
             p.direction = add(p.direction,[0,-2])
         elif e.key == pygame.K_s:
@@ -76,8 +77,9 @@ def draw():
     global screen
     global p
 
-    screen.fill([0,0,0])
-    allsprites.draw(screen)
+    world.fill([0,0,0])
+    allsprites.draw(world)
+    screen.blit(world,drawloc)
     pygame.display.update()
 
 p = block()
@@ -91,6 +93,7 @@ allsprites.add(p)
 
 while running:
     allsprites.update()
+    drawloc[0] = drawloc[0] - 1
     for e in pygame.event.get():
         processevent(e)
     draw()
