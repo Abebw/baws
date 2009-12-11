@@ -11,7 +11,6 @@
 
 #for alex: 
 #add yourself to author line
-#add movment of the player (maybe a boost or something have fun with it)
 #add some enemy craft
 #add a system so things enterence can b scripted (then we have a simple level system)
 
@@ -23,13 +22,26 @@ running=True
 
 def add(x,y):
     return [x[0]+y[0], x[1]+y[1]]
-class Player (pygame.sprite.Sprite):
+class block (pygame.sprite.Sprite):
+    #uglyness warning: color is a helper variable because i didnt wannt pull outthe colour from the block changing color wont do anythign untill the block is resized
     def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
         self.image = pygame.Surface([30,15])
         self.image.fill([100,100,100])
+        self.color = [100,100,100]
         self.rect = self.image.get_rect()
         self.rect.center = [100,100]
         self.direction = [0,0]
+    def setShape(self, w, h):
+        i = pygame.Surface([w,h])
+        i.fill(self.color)
+        temp  = pygame.Rect(0,0,w,h)
+        temp.center = self.rect.center
+        self.image = i
+        self.rect = temp
+    def setColor(self, c):
+        self.color = c
+        self.image.fill(c)
     def update(self):
         self.rect = self.rect.move(self.direction)
 
@@ -39,6 +51,8 @@ def processevent(e):
     if e.type == pygame.QUIT:
         running = False
     if e.type == pygame.KEYDOWN:
+        global temp
+        print temp.rect
         if e.key == pygame.K_w:
             p.direction = add(p.direction,[0,-2])
         elif e.key == pygame.K_s:
@@ -63,13 +77,20 @@ def draw():
     global p
 
     screen.fill([0,0,0])
-    screen.blit(p.image, p.rect)
+    allsprites.draw(screen)
     pygame.display.update()
 
-p = Player()
+p = block()
+allsprites = pygame.sprite.Group()
+temp = block()
+temp.rect.center = [200,200]
+temp.setShape(20,75)
+temp.setColor((255,255,0))
+allsprites.add(temp)
+allsprites.add(p)
 
 while running:
-    p.update()
+    allsprites.update()
     for e in pygame.event.get():
         processevent(e)
     draw()
