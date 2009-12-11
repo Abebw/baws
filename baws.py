@@ -3,17 +3,14 @@
 #design: bidirectional shooter
 
 
-#for abe or if alex feels up to it:
-
+#todo
 #add bidirection mode
-
-#for alex: 
-#add yourself to author line
+#for alex: add yourself to author line
 #add some enemy craft
 #add a system so things enterence can b scripted (then we have a simple level system)
 #prevent player from leaving screen
 
-import pygame
+import pygame, math
 pygame.init()
 screen = pygame.display.set_mode((600,400))
 world = pygame.Surface((3000,400)) #this would be the dimensions of the level
@@ -23,6 +20,12 @@ running=True
 
 def add(x,y):
     return [x[0]+y[0], x[1]+y[1]]
+def floor(x):
+    return [math.floor(x[0]),math.floor(x[1])]
+def ceiling(x):
+    return [math.ceil(x[0]),math.ceil(x[1])]
+def modOne(x):
+    return [x[0]%1,x[1]%1]
 class block (pygame.sprite.Sprite):
     #uglyness warning: color is a helper variable because i didnt wannt pull outthe colour from the block changing color wont do anythign untill the block is resized
     def __init__(self):
@@ -33,6 +36,7 @@ class block (pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = [100,100]
         self.direction = [0,0]
+        self.rounding = [0,0]
     def setShape(self, w, h):
         i = pygame.Surface([w,h])
         i.fill(self.color)
@@ -45,7 +49,9 @@ class block (pygame.sprite.Sprite):
         self.image.fill(c)
     def update(self):
         self.rect = self.rect.move(self.direction)
-
+        self.rounding = add(self.rounding, modOne(self.direction))
+        self.rect = self.rect.move(floor(self.rounding))
+        self.rounding = modOne(self.rounding)
 def processevent(e):
     global running
     global p
@@ -93,7 +99,7 @@ allsprites.add(p)
 
 while running:
     allsprites.update()
-    drawloc[0] = drawloc[0] - 1
+    #drawloc[0] = drawloc[0] - 1 this line makes the camera move right
     for e in pygame.event.get():
         processevent(e)
     draw()
