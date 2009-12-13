@@ -1,18 +1,18 @@
-#authors: Abe Barth-Werb 
+#authors: Abe Barth-Werb, Alex Willingham
 #goal: postal service style game dev
 #design: bidirectional shooter
 
 
 #todo
 #add bidirection mode
-#for alex: add yourself to author line
 #add some enemy craft
-#add a system so things enterence can b scripted (then we have a simple level system)
-#prevent player from leaving screen
+#add a system so things enterence can b scripted (then we have a simple level system) !!Suggestion at bottom (also source of nasty console spam)
 
 import pygame, math
 pygame.init()
-screen = pygame.display.set_mode((600,400))
+resolution_x = 600
+resolution_y = 400
+screen = pygame.display.set_mode((resolution_x,resolution_y))
 world = pygame.Surface((3000,400)) #this would be the dimensions of the level
 clock = pygame.time.Clock()
 drawloc = [0,0]
@@ -49,6 +49,14 @@ class block (pygame.sprite.Sprite):
         self.image.fill(c)
     def update(self):
         self.rect = self.rect.move(self.direction)
+        if self.rect.top < 0:
+            self.rect = self.rect.move([0,2])
+        if self.rect.bottom > resolution_y:
+            self.rect = self.rect.move([0,-2])
+        if self.rect.left < 0:
+            self.rect = self.rect.move([2,0])
+        if self.rect.right > resolution_x:
+            self.rect = self.rect.move([-2,0])
         self.rounding = add(self.rounding, modOne(self.direction))
         self.rect = self.rect.move(floor(self.rounding))
         self.rounding = modOne(self.rounding)
@@ -104,3 +112,5 @@ while running:
         processevent(e)
     draw()
     clock.tick(60)
+    print pygame.time.get_ticks() / 60  #here's a solution to having entrances scripted.  Simply get a number off of the timer.
+                                            #then a level will have statements like "if time == whatever:  horde_of_banshees()"
