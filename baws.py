@@ -4,7 +4,6 @@
 
 
 #todo
-#add bidirection mode
 #add some enemy craft
 #add a system so things enterence can b scripted (then we have a simple level system) !!Suggestion at bottom (also source of nasty console spam)
 
