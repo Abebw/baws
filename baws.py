@@ -13,6 +13,7 @@ pygame.init()
 resolution_x = 600
 resolution_y = 400
 screen = pygame.display.set_mode((resolution_x,resolution_y))
+scroll = [-1,0]
 world = pygame.Surface((3000,400)) #this would be the dimensions of the level
 clock = pygame.time.Clock()
 drawloc = [0,0]
@@ -20,6 +21,8 @@ running=True
 
 def add(x,y):
     return [x[0]+y[0], x[1]+y[1]]
+def negate(x):
+    return [-1* x[0], -1*x[1]]
 def floor(x):
     return [math.floor(x[0]),math.floor(x[1])]
 def ceiling(x):
@@ -76,6 +79,9 @@ def processevent(e):
             p.direction = add(p.direction,[-2,0])
         elif e.key == pygame.K_d:
             p.direction = add(p.direction,[2,0])
+        elif e.key == pygame.K_SPACE:
+            global scroll
+            p.direction = add(p.direction, scroll)
     if e.type == pygame.KEYUP:
         if e.key == pygame.K_w:
             p.direction = add(p.direction,[0,2]) 
@@ -85,7 +91,11 @@ def processevent(e):
             p.direction = add(p.direction,[2,0])
         elif e.key == pygame.K_d:
             p.direction = add(p.direction,[-2,0])
-                
+        elif e.key == pygame.K_SPACE:
+            global scroll
+            scroll = negate(scroll)
+            p.direction = add (p.direction, negate(scroll))
+
             
 def draw():
     global screen
@@ -97,6 +107,7 @@ def draw():
     pygame.display.update()
 
 p = block()
+p.direction = negate(scroll)
 allsprites = pygame.sprite.Group()
 temp = block()
 temp.rect.center = [200,200]
@@ -107,10 +118,13 @@ allsprites.add(p)
 
 while running:
     allsprites.update()
-    #drawloc[0] = drawloc[0] - 1 this line makes the camera move right
+    drawloc = add(drawloc, scroll)
     for e in pygame.event.get():
         processevent(e)
     draw()
     clock.tick(60)
-    print pygame.time.get_ticks() / 60  #here's a solution to having entrances scripted.  Simply get a number off of the timer.
+    #print pygame.time.get_ticks() / 60  #here's a solution to having entrances scripted.  Simply get a number off of the timer.
                                             #then a level will have statements like "if time == whatever:  horde_of_banshees()"
+#    if pygame.time.get_ticks() % 300 == 0:
+#        print pygame.time.get_ticks()/60
+
