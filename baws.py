@@ -3,17 +3,23 @@
 #design: bidirectional shooter
 
 
-#todo
-#add some enemy craft
-#add a system so things enterence can b scripted (then we have a simple level system) !!Suggestion at bottom (also source of nasty console spam)
+#todo:now
+#add shooting (half done by abe with weirdo comments assuming all goes well i should finish dec 18 at about 8pm)
+#simple black and white kamakazee enemies
+#remove border collision from block class
+#and fix it to work with scrolling
+
+#todo: long term
+#make library to procedurally generate sprites of basic geometrys
+
 
 import pygame, math
 pygame.init()
 resolution_x = 600
 resolution_y = 400
 screen = pygame.display.set_mode((resolution_x,resolution_y))
-scroll = [-1,0]
-world = pygame.Surface((3000,400)) #this would be the dimensions of the level
+scroll = [0,-1]
+world = pygame.Surface((600,4000)) #this would be the dimensions of the level
 clock = pygame.time.Clock()
 drawloc = [0,0]
 running=True
@@ -32,7 +38,7 @@ class block (pygame.sprite.Sprite):
     #uglyness warning: color is a helper variable because i didnt wannt pull outthe colour from the block changing color wont do anythign untill the block is resized
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface([30,15])
+        self.image = pygame.Surface([15,30])
         self.image.fill([100,100,100])
         self.color = [100,100,100]
         self.rect = self.image.get_rect()
@@ -62,6 +68,17 @@ class block (pygame.sprite.Sprite):
         self.rounding = add(self.rounding, modOne(self.direction))
         self.rect = self.rect.move(floor(self.rounding))
         self.rounding = modOne(self.rounding)
+def bullet(block):
+    def __init__():
+        block.__init__(self)
+        #here goes setting default size colour etc
+    def update(self):
+        block.update(self)
+        #here goes checking for collision with enemy group
+    def setWhite(self):
+        print "i'm setting white"
+    def setBlack(self):
+        print "i'm setting black"
 def processevent(e):
     global running
     global p
@@ -79,8 +96,9 @@ def processevent(e):
         elif e.key == pygame.K_d:
             p.direction = add(p.direction,[2,0])
         elif e.key == pygame.K_SPACE:
-            global scroll
-            p.direction = add(p.direction, scroll)
+            print "bang!"
+               #shooting code should go here (or just a call to some shooting code in the player class)
+            
     if e.type == pygame.KEYUP:
         if e.key == pygame.K_w:
             p.direction = add(p.direction,[0,2]) 
@@ -91,9 +109,10 @@ def processevent(e):
         elif e.key == pygame.K_d:
             p.direction = add(p.direction,[-2,0])
         elif e.key == pygame.K_SPACE:
-            global scroll
-            scroll = negate(scroll)
-            p.direction = add (p.direction, negate(scroll))
+            print "kuchunk"
+            #global scroll
+            #scroll = negate(scroll)
+            #p.direction = add (p.direction, negate(scroll))
 
             
 def draw():
@@ -108,6 +127,10 @@ def draw():
 p = block()
 p.direction = negate(scroll)
 allsprites = pygame.sprite.Group()
+whiteAllyBullets = pygame.sprite.Group()
+blackAllyBullets = pygame.sprite.Group()
+
+
 temp = block()
 temp.rect.center = [200,200]
 temp.setShape(20,75)
