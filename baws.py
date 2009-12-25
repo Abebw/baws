@@ -4,10 +4,12 @@
 
 
 #todo:now
-#add shooting (half done by abe with weirdo comments assuming all goes well i should finish dec 18 at about 8pm)
 #simple black and white kamakazee enemies
 #remove border collision from block class
-#and fix it to work with scrolling
+#remove bullets once then have exited the world
+
+
+
 
 #todo: long term
 #make library to procedurally generate sprites of basic geometrys
@@ -55,32 +57,62 @@ class block (pygame.sprite.Sprite):
     def setColor(self, c):
         self.color = c
         self.image.fill(c)
+        self.setShape(self.rect.width,self.rect.height)
     def update(self):
         self.rect = self.rect.move(self.direction)
-        if self.rect.top < 0:
-            self.rect = self.rect.move([0,2])
-        if self.rect.bottom > resolution_y:
-            self.rect = self.rect.move([0,-2])
-        if self.rect.left < 0:
-            self.rect = self.rect.move([2,0])
-        if self.rect.right > resolution_x:
-            self.rect = self.rect.move([-2,0])
         self.rounding = add(self.rounding, modOne(self.direction))
         self.rect = self.rect.move(floor(self.rounding))
         self.rounding = modOne(self.rounding)
+class player(block):
+    def __init__(self):
+        block.__init__(self)
+        self.shooting = False
+        self.cooldown = 0
+        self.firerate = 10
+    def shoot(self):
+        global allsprites
+        temp =  bullet()
+        temp.rect.center = p.rect.center
+        temp.setWhite()
+        temp.direction = [3,0]
+        allsprites.add(temp)
+        temp =  bullet()
+        temp.rect.center = p.rect.center
+        temp.setBlack()
+        temp.direction = [-3,0]
+        allsprites.add(temp)
+    def update(self):
+        block.update(self)
+        if (self.cooldown > 0):
+            self.cooldown = self.cooldown -1
+        if (self.cooldown < 1) and (self.shooting):
+            self.shoot()
+            self.cooldown = self.firerate
+
+
+        if self.rect.top < drawloc[0]:
+            self.rect = self.rect.move([0,2])
+        if self.rect.bottom > (resolution_y+ drawloc[0]):
+            self.rect = self.rect.move([0,-2])
+        if self.rect.left < drawloc[1]:
+            self.rect = self.rect.move([2,0])
+        if self.rect.right > resolution_x+ drawloc[1]:
+            self.rect = self.rect.move([-2,0])
+            
+        
+        
 class bullet(block):
     def __init__(self):
         block.__init__(self)
         self.setColor([100,0,0])
-        self.setShape(10,10)
-        #here goes setting default size colour etc
+        self.setShape(7,7)
     def update(self):
         block.update(self)
         #here goes checking for collision with enemy group
     def setWhite(self):
-        print "i'm setting white"
+        self.setColor([255,255,255])
     def setBlack(self):
-        print "i'm setting black"
+        self.setColor([0,0,0])
 def processevent(e):
     global running
     global p
@@ -88,7 +120,6 @@ def processevent(e):
         running = False
     if e.type == pygame.KEYDOWN:
         global screen 
-        print screen
         if e.key == pygame.K_w:
             p.direction = add(p.direction,[0,-2])
         elif e.key == pygame.K_s:
@@ -98,21 +129,8 @@ def processevent(e):
         elif e.key == pygame.K_d:
             p.direction = add(p.direction,[2,0])
         elif e.key == pygame.K_SPACE:
-            print "bang!"
             global p
-            global allsprites
-            temp =  bullet()
-            temp.rect.center = p.rect.center
-            temp.setWhite()
-            temp.direction = [3,0]
-            allsprites.add(temp)
-            temp =  bullet()
-            temp.rect.center = p.rect.center
-            temp.setBlack()
-            temp.direction = [-3,0]
-            allsprites.add(temp)
-
-               #shooting code should go here (or just a call to some shooting code in the player class)
+            p.shooting = True
             
     if e.type == pygame.KEYUP:
         if e.key == pygame.K_w:
@@ -124,7 +142,7 @@ def processevent(e):
         elif e.key == pygame.K_d:
             p.direction = add(p.direction,[-2,0])
         elif e.key == pygame.K_SPACE:
-            print "kuchunk"
+            p.shooting = False
             #global scroll
             #scroll = negate(scroll)
             #p.direction = add (p.direction, negate(scroll))
@@ -134,12 +152,12 @@ def draw():
     global screen
     global p
 
-    world.fill([0,0,0])
+    world.fill([50,50,50])
     allsprites.draw(world)
     screen.blit(world,drawloc)
     pygame.display.update()
 
-p = block()
+p = player()
 p.direction = negate(scroll)
 allsprites = pygame.sprite.Group()
 whiteAllyBullets = pygame.sprite.Group()
