@@ -18,7 +18,7 @@ pygame.init()
 resolution_x = 600
 resolution_y = 400
 screen = pygame.display.set_mode((resolution_x,resolution_y))
-scroll = [0,-1]
+scroll = [0,0] #[0,-1]
 world = pygame.Surface((600,4000)) #this would be the dimensions of the level
 clock = pygame.time.Clock()
 drawloc = [0,0]
@@ -68,9 +68,11 @@ class block (pygame.sprite.Sprite):
         self.rounding = add(self.rounding, modOne(self.direction))
         self.rect = self.rect.move(floor(self.rounding))
         self.rounding = modOne(self.rounding)
-def bullet(block):
-    def __init__():
+class bullet(block):
+    def __init__(self):
         block.__init__(self)
+        self.setColor([100,0,0])
+        self.setShape(10,10)
         #here goes setting default size colour etc
     def update(self):
         block.update(self)
@@ -97,6 +99,19 @@ def processevent(e):
             p.direction = add(p.direction,[2,0])
         elif e.key == pygame.K_SPACE:
             print "bang!"
+            global p
+            global allsprites
+            temp =  bullet()
+            temp.rect.center = p.rect.center
+            temp.setWhite()
+            temp.direction = [3,0]
+            allsprites.add(temp)
+            temp =  bullet()
+            temp.rect.center = p.rect.center
+            temp.setBlack()
+            temp.direction = [-3,0]
+            allsprites.add(temp)
+
                #shooting code should go here (or just a call to some shooting code in the player class)
             
     if e.type == pygame.KEYUP:
