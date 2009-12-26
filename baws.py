@@ -12,7 +12,6 @@
 #todo: long term
 #make library to procedurally generate sprites of basic geometrys
 
-
 import pygame, math
 pygame.init()
 resolution_x = 600
@@ -86,7 +85,6 @@ class player(block):
         if (self.cooldown < 1) and (self.shooting):
             self.shoot()
             self.cooldown = self.firerate
-
         #keep player on screen, fixed to use window instead of world
         if self.rect.top < 0:
             self.rect.top = 0
@@ -97,8 +95,38 @@ class player(block):
         if self.rect.right > resolution_x:
             self.rect.right = resolution_x
             
-        
-        
+class kamikaze(block):
+    def __init__(self, color, loc, direc):
+        block.__init__(self)
+        if color == 0:
+            self.setColor([0,0,0])
+        else:
+            self.setColor([100,0,0])
+        self.setShape(15,15)
+        self.direction = direc
+        self.rect.bottomleft = loc
+        enemies.add(self)
+    def update(self):
+        block.update(self)
+        killOffScreen(self) #kill enemy when it is off screen
+ 
+def  killOffScreen(x):
+        #kill enemy when it is off screen 
+        if x.rect.right < 0:
+            killSprite(x)
+        if x.rect.left > resolution_x:
+            killSprite(x)
+        if x.rect.bottom < 0:
+            killSprite(x)
+        if x.rect.top > resolution_y:
+            killSprite(x)
+            
+def killSprite(a):
+    allsprites.remove(a)
+    enemies.remove(a)
+    whiteAllyBullets.remove(a)
+    blackAllyBullets.remove(a)
+    
 class bullet(block):
     def __init__(self):
         block.__init__(self)
@@ -107,20 +135,18 @@ class bullet(block):
     def update(self):
         block.update(self)
         #here goes checking for collision with enemy group
-        
+        if pygame.sprite.spritecollide(self, enemies, 0) != []:            #dude whenever i write two lines like this
+            for x in pygame.sprite.spritecollide(self, enemies, 0):        #i think functionally.
+                killSprite(x)
+            killSprite(self)
+            
         #kill bullet when it is off screen
-        if self.rect.right < 0:
-            allsprites.remove(self)
-        if self.rect.left > resolution_x:
-            allsprites.remove(self)
-        if self.rect.bottom < 0:
-            allsprites.remove(self)
-        if self.rect.top > resolution_y:
-            allsprites.remove(self)
+        killOffScreen(self)
     def setWhite(self):
         self.setColor([255,255,255])
     def setBlack(self):
         self.setColor([0,0,0])
+        
 def processevent(e):
     global running
     global p
@@ -170,7 +196,9 @@ p.direction = negate(scroll)
 allsprites = pygame.sprite.Group()
 whiteAllyBullets = pygame.sprite.Group()
 blackAllyBullets = pygame.sprite.Group()
+enemies = pygame.sprite.Group()
 
+k = kamikaze(0, [20, 0], [0,2])
 
 temp = block()
 temp.rect.center = [200,200]
@@ -178,7 +206,7 @@ temp.setShape(20,75)
 temp.setColor((255,255,0))
 allsprites.add(temp)
 allsprites.add(p)
-
+allsprites.add(k)
 while running:
     allsprites.update()
     drawloc = add(drawloc, scroll)
