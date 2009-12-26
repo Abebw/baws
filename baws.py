@@ -5,8 +5,6 @@
 
 #todo:now
 #simple black and white kamakazee enemies
-#remove border collision from block class
-#remove bullets once then have exited the world
 
 
 
@@ -89,15 +87,15 @@ class player(block):
             self.shoot()
             self.cooldown = self.firerate
 
-
-        if self.rect.top < drawloc[0]:
-            self.rect = self.rect.move([0,2])
-        if self.rect.bottom > (resolution_y+ drawloc[0]):
-            self.rect = self.rect.move([0,-2])
-        if self.rect.left < drawloc[1]:
-            self.rect = self.rect.move([2,0])
-        if self.rect.right > resolution_x+ drawloc[1]:
-            self.rect = self.rect.move([-2,0])
+        #keep player on screen, fixed to use window instead of world
+        if self.rect.top < 0:
+            self.rect.top = 0
+        if self.rect.bottom > resolution_y:
+            self.rect.bottom = resolution_y
+        if self.rect.left < 0:
+            self.rect.left = 0
+        if self.rect.right > resolution_x:
+            self.rect.right = resolution_x
             
         
         
@@ -109,6 +107,16 @@ class bullet(block):
     def update(self):
         block.update(self)
         #here goes checking for collision with enemy group
+        
+        #kill bullet when it is off screen
+        if self.rect.right < 0:
+            allsprites.remove(self)
+        if self.rect.left > resolution_x:
+            allsprites.remove(self)
+        if self.rect.bottom < 0:
+            allsprites.remove(self)
+        if self.rect.top > resolution_y:
+            allsprites.remove(self)
     def setWhite(self):
         self.setColor([255,255,255])
     def setBlack(self):
